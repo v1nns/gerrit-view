@@ -209,7 +209,7 @@
                 },
                 "gerrit-view.query": {
                     "type": "string",
-                    "default": "status:open",
+                    "default": "status:open owner:self",
                     "markdownDescription": "Query for retrieving data"
                 },
                 "gerrit-view.debug": {
@@ -221,6 +221,11 @@
                     "type": "boolean",
                     "default": true,
                     "markdownDescription": "Show the tree in the explorer view"
+                },
+                "gerrit-view.showBranchInExplorer": {
+                    "type": "boolean",
+                    "default": true,
+                    "markdownDescription": "Show the branch name in the tree view"
                 },
                 "gerrit-view.filterCaseSensitive": {
                     "type": "boolean",

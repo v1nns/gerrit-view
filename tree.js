@@ -131,6 +131,15 @@ class TreeNodeProvider
         }
     }
 
+    updateStructure(_structure)
+    {
+        if( this._structure !== _structure )
+        {
+            this._structure = _structure;
+            this.refresh();
+        }
+    }
+
     getChildren( node )
     {
         if( node === undefined )
@@ -488,6 +497,7 @@ class TreeNodeProvider
 
     setExpanded( id, expanded )
     {
+        console.log(expandedNodes);
         var nodeId = id.replace( /\./g, '_' );
         expandedNodes[ nodeId ] = expanded;
         this._context.workspaceState.update( 'expandedNodes', expandedNodes );

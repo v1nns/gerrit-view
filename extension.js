@@ -3,6 +3,7 @@
 var vscode = require( 'vscode' );
 var path = require( 'path' );
 var os = require( 'os' );
+var notifier = require('node-notifier')
 var gerrit = require( './gerrit.js' );
 var tree = require( "./tree.js" );
 var objectUtils = require( "./objectUtils.js" );
@@ -27,80 +28,89 @@ function activate( context )
         {
             property: "project",
             icon: "briefcase",
-            children: [
-                {
-                    property: "branch",
-                    format: "branch: ${branch}",
-                    icon: "git-branch",
-                    sort: true,
-                    children: [
-                        {
-                            property: "status",
-                            sort: true,
-                            children: [
-                                {
-                                    property: "subject",
-                                    sort: true,
-                                    icon: "overallScore",
-                                    showChanged: true,
-                                    format: "${number} ${subject}",
-                                    hasContextMenu: true,
-                                    tooltip: "${commitMessage}",
-                                    children: [
-                                        {
-                                            property: "currentPatchSet.number",
-                                            sort: true,
-                                            format: "Patch set: ${currentPatchSet.number}",
-                                            showChanged: true
-                                        },
-                                        {
-                                            property: "currentPatchSet.approvals.by.name",
-                                            sort: true,
-                                            icon: "score",
-                                            tooltip: "${currentPatchSet.approvals.by.email}",
-                                            showChanged: true
-                                        },
-                                        {
-                                            property: "id",
-                                            format: "ID: ${id}"
-                                        },
-                                        {
-                                            property: "createdOn",
-                                            formatter: "created"
-                                        },
-                                        {
-                                            property: "lastUpdated",
-                                            sort: true,
-                                            formatter: "updated",
-                                            showChanged: true
-                                        },
-                                        {
-                                            property: "owner.name",
-                                            format: "Owner: ${owner.name} (${owner.username})",
-                                            children: [
-                                                { property: "owner.email" }
-                                            ],
-                                        },
-                                        {
-                                            property: "comments",
-                                            format: "Comments",
-                                            showChanged: true,
-                                            children: [
-                                                {
-                                                    property: "comments.message",
-                                                    tooltip: "${comments.message}"
-                                                }
-                                            ]
-                                        }
-                                    ],
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
+            children: []
         }
     ];
+
+    var branch = {
+        property: "branch",
+        format: "branch: ${branch}",
+        icon: "git-branch",
+        sort: true,
+        children: []
+    };
+
+    var change = {
+        property: "status",
+        sort: true,
+        children: [
+            {
+                property: "subject",
+                sort: true,
+                icon: "overallScore",
+                showChanged: true,
+                format: "${number} ${subject}",
+                hasContextMenu: true,
+                tooltip: "${commitMessage}",
+                children: [
+                    {
+                        property: "currentPatchSet.number",
+                        sort: true,
+                        format: "Patch set: ${currentPatchSet.number}",
+                        showChanged: true
+                    },
+                    {
+                        property: "currentPatchSet.approvals.by.name",
+                        sort: true,
+                        icon: "score",
+                        tooltip: "${currentPatchSet.approvals.by.email}",
+                        showChanged: true
+                    },
+                    {
+                        property: "id",
+                        format: "ID: ${id}"
+                    },
+                    {
+                        property: "createdOn",
+                        formatter: "created"
+                    },
+                    {
+                        property: "lastUpdated",
+                        sort: true,
+                        formatter: "updated",
+                        showChanged: true
+                    },
+                    {
+                        property: "owner.name",
+                        format: "Owner: ${owner.name} (${owner.username})",
+                        children: [{ property: "owner.email" }]
+                    },
+                    {
+                        property: "comments",
+                        format: "Comments",
+                        showChanged: true,
+                        children: [
+                            {
+                                property: "comments.message",
+                                tooltip: "${comments.message}"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    };
+
+    branch.children.push(change);
+
+    if( vscode.workspace.getConfiguration( 'gerrit-view' ).showBranchInExplorer === true)
+    {
+        structure[0].children.push(branch);
+    }
+    else
+    {
+        structure[0].children.push(change);
+    }
 
     var provider = new tree.TreeNodeProvider( context, structure );
 
@@ -239,6 +249,13 @@ function activate( context )
             if( changed.length > 0 )
             {
                 vscode.window.showInformationMessage( "gerrit-view: Updated change sets: " + changed.join( "," ) );
+                notifier.notify({
+                    title: "gerrit-view",
+                    message: "Updated change sets: " + changed.join( "," ),
+                    icon: path.join(__dirname, 'resources/gerrit-view.png'),
+                    sound: true,
+                    wait: true
+                })
             }
 
             showTree = true;
@@ -484,6 +501,26 @@ function activate( context )
                 else if( e.affectsConfiguration( "gerrit-view.autoRefresh" ) )
                 {
                     scheduleRefresh();
+                }
+                else if( e.affectsConfiguration( "gerrit-view.showBranchInExplorer") )
+                {
+                    // Clear structure
+                    while(structure[0].children.length > 0)
+                    {
+                        structure[0].children.pop();
+                    }
+
+                    if( vscode.workspace.getConfiguration( 'gerrit-view' ).showBranchInExplorer === true)
+                    {
+                        structure[0].children.push(branch);
+                    }
+                    else
+                    {
+                        structure[0].children.push(change);
+                    }
+
+                    provider.updateStructure(structure);
+                    getGerritData();
                 }
                 else
                 {
