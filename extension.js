@@ -3,11 +3,13 @@
 var vscode = require( 'vscode' );
 var path = require( 'path' );
 var os = require( 'os' );
-var notifier = require('node-notifier')
 var gerrit = require( './gerrit.js' );
 var tree = require( "./tree.js" );
 var objectUtils = require( "./objectUtils.js" );
 
+const NotifySend = require('node-notifier').NotifySend;
+
+var notifier = new NotifySend();
 var autoRefresh;
 var lastResults;
 var showTree = false;
@@ -251,12 +253,10 @@ function activate( context )
                 if ( vscode.workspace.getConfiguration( 'gerrit-view' ).enableGlobalNotification === true)
                 {
                     notifier.notify({
-                        title: "gerrit-view",
-                        subtitle: "Updated change sets:",
+                        title: "gerrit-view - updated change sets:",
                         message: changed.join( "," ),
                         icon: path.join(__dirname, 'resources/gerrit-view.png'),
-                        sound: true,
-                        timeout: 10
+                        time: 15000
                     })
                 }
                 else
