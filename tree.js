@@ -127,7 +127,7 @@ class TreeNodeProvider
         }
         else
         {
-            storageLocation = _context.extensionPath;
+            storageLocation = path.join(_context.extensionPath, "resources/icons");
         }
     }
 
@@ -497,7 +497,6 @@ class TreeNodeProvider
 
     setExpanded( id, expanded )
     {
-        console.log(expandedNodes);
         var nodeId = id.replace( /\./g, '_' );
         expandedNodes[ nodeId ] = expanded;
         this._context.workspaceState.update( 'expandedNodes', expandedNodes );

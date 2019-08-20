@@ -248,14 +248,21 @@ function activate( context )
 
             if( changed.length > 0 )
             {
-                vscode.window.showInformationMessage( "gerrit-view: Updated change sets: " + changed.join( "," ) );
-                notifier.notify({
-                    title: "gerrit-view",
-                    message: "Updated change sets: " + changed.join( "," ),
-                    icon: path.join(__dirname, 'resources/gerrit-view.png'),
-                    sound: true,
-                    wait: true
-                })
+                if ( vscode.workspace.getConfiguration( 'gerrit-view' ).enableGlobalNotification === true)
+                {
+                    notifier.notify({
+                        title: "gerrit-view",
+                        subtitle: "Updated change sets:",
+                        message: changed.join( "," ),
+                        icon: path.join(__dirname, 'resources/gerrit-view.png'),
+                        sound: true,
+                        timeout: 10
+                    })
+                }
+                else
+                {
+                    vscode.window.showInformationMessage( "gerrit-view: Updated change sets: " + changed.join( "," ) );
+                }
             }
 
             showTree = true;
