@@ -2,11 +2,11 @@
     "name": "gerrit-view",
     "displayName": "Gerrit View",
     "description": "Show the gerrit dashboard in a tree view",
-    "version": "0.0.10",
+    "version": "0.0.11",
     "icon": "resources/gerrit-view.png",
     "publisher": "Gruntfuggly",
     "engines": {
-        "vscode": "^1.5.0"
+        "vscode": "^1.37.0"
     },
     "repository": "https://github.com/Gruntfuggly/gerrit-view",
     "scripts": {},
