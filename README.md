@@ -1,5 +1,8 @@
 # Gerrit View
 
+/# vsce package
+/# code --install-extension gerrit-view-0.0.11.vsix
+
 This extension provides a view of your Gerrit server.
 
 When parts of the tree are updated they are displayed larger and brighter. Clicking items will reset them.

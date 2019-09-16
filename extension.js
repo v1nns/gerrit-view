@@ -171,10 +171,10 @@ function activate( context )
 
     function getGerritData( refreshRequired )
     {
-        if( vscode.window.state.focused !== true )
-        {
-            return;
-        }
+        // if( vscode.window.state.focused !== true )
+        // {
+        //     return;
+        // }
 
         var config = vscode.workspace.getConfiguration( 'gerrit-view' );
 
